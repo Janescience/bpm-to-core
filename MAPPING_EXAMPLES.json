@@ -1,0 +1,494 @@
+{
+  "description": "Ready-to-use mapping examples based on MAPPING_DOCUMENTATION.md",
+  "version": "1.0",
+  "date": "2025-12-25",
+
+  "examples": {
+
+    "simple_direct_mapping": {
+      "name": "Simple Direct Field Mapping",
+      "xml_path": "S2465.LGIVNAME",
+      "function_type": "DIRECT",
+      "function_params": {
+        "jsonField": "eAPPDetails.0.Insured.0.FirstName",
+        "defaultValue": ""
+      },
+      "description": "Map Thai first name directly from JSON to XML"
+    },
+
+    "static_value": {
+      "name": "Static Value",
+      "xml_path": "S2465.ADDRTYPE",
+      "function_type": "STATIC",
+      "function_params": {
+        "value": "P"
+      },
+      "description": "Always use 'P' for permanent address type"
+    },
+
+    "gender_mapping": {
+      "name": "Gender Conditional Mapping",
+      "xml_path": "S2465.CLTSEX",
+      "function_type": "CONDITION",
+      "function_params": {
+        "jsonField": "eAPPDetails.0.Insured.0.Gender",
+        "conditions": [
+          { "operator": "==", "value": "MALE", "result": "M" },
+          { "operator": "==", "value": "FEMALE", "result": "F" }
+        ],
+        "defaultValue": "U"
+      },
+      "description": "Convert gender: MALE→M, FEMALE→F, default→U"
+    },
+
+    "nationality_mapping": {
+      "name": "Nationality with Default",
+      "xml_path": "S2465.NATLTY",
+      "function_type": "CONDITION",
+      "function_params": {
+        "jsonField": "eAPPDetails.0.Insured.0.Nationality",
+        "conditions": [
+          { "operator": "isEmpty", "value": null, "result": "THA" },
+          { "operator": "==", "value": "THAI", "result": "THA" }
+        ],
+        "defaultValue": "THA"
+      },
+      "description": "Default empty or 'THAI' to 'THA'"
+    },
+
+    "payment_plan": {
+      "name": "Payment Plan Multi-Condition",
+      "xml_path": "S4014.PAYPLAN",
+      "function_type": "CONDITION_MULTIPLE",
+      "function_params": {
+        "conditions": [
+          {
+            "type": "AND",
+            "checks": [
+              { "jsonField": "eAPPDetails.0.Payment.PayMethod", "operator": "==", "value": "CREDITCARD" },
+              { "jsonField": "eAPPDetails.0.Payment.PayMode", "operator": "==", "value": "MONTHLY" }
+            ],
+            "result": "BI12"
+          },
+          {
+            "type": "AND",
+            "checks": [
+              { "jsonField": "eAPPDetails.0.Payment.PayMethod", "operator": "==", "value": "CREDITCARD" },
+              { "jsonField": "eAPPDetails.0.Payment.PayMode", "operator": "in", "value": ["ANNUAL", "YEARLY"] },
+              { "jsonField": "eAPPDetails.0.Payment.EtrNumber", "operator": "==", "value": "YES" }
+            ],
+            "result": "BI01"
+          }
+        ],
+        "defaultValue": "D000"
+      },
+      "description": "Calculate payment plan based on method, mode, and ETR"
+    },
+
+    "address_line1": {
+      "name": "Thai Address Line 1 (0-30 chars)",
+      "xml_path": "S2465.CLTADDR01",
+      "function_type": "CONCAT",
+      "function_params": {
+        "fields": [
+          { "jsonField": "eAPPDetails.0.Address.0.PlotNumber" },
+          { "jsonField": "eAPPDetails.0.Address.0.BuildingName" },
+          { "jsonField": "eAPPDetails.0.Address.0.MooNumber", "prefix": "ม." },
+          { "jsonField": "eAPPDetails.0.Address.0.LaneSoi", "prefix": "ซอย " },
+          { "jsonField": "eAPPDetails.0.Address.0.Road", "prefix": "ถนน " }
+        ],
+        "separator": " ",
+        "startIndex": 0,
+        "maxLength": 30
+      },
+      "description": "Concatenate Thai address components (first 30 chars)"
+    },
+
+    "address_line2": {
+      "name": "Thai Address Line 2 (30-60 chars)",
+      "xml_path": "S2465.CLTADDR02",
+      "function_type": "CONCAT",
+      "function_params": {
+        "fields": [
+          { "jsonField": "eAPPDetails.0.Address.0.PlotNumber" },
+          { "jsonField": "eAPPDetails.0.Address.0.BuildingName" },
+          { "jsonField": "eAPPDetails.0.Address.0.MooNumber", "prefix": "ม." },
+          { "jsonField": "eAPPDetails.0.Address.0.LaneSoi", "prefix": "ซอย " },
+          { "jsonField": "eAPPDetails.0.Address.0.Road", "prefix": "ถนน " }
+        ],
+        "separator": " ",
+        "startIndex": 30,
+        "maxLength": 30
+      },
+      "description": "Continuation of address (chars 30-60)"
+    },
+
+    "district_with_prefix": {
+      "name": "District with Prefix Cleaning",
+      "xml_path": "S2465.CLTADDR04",
+      "function_type": "CONCAT",
+      "function_params": {
+        "fields": [
+          {
+            "jsonField": "eAPPDetails.0.Address.0.DistrictDesc",
+            "prefix": "เขต/อำเภอ ",
+            "replace": {
+              "อ\\.": "",
+              "อำเภอ": "",
+              "เขต": ""
+            }
+          }
+        ],
+        "separator": "",
+        "maxLength": 30
+      },
+      "description": "Add district prefix and remove existing prefixes"
+    },
+
+    "birth_year": {
+      "name": "Birth Date - Year",
+      "xml_path": "S2465.CLTDOBX.CCYY",
+      "function_type": "DATE",
+      "function_params": {
+        "jsonField": "eAPPDetails.0.Insured.0.Dob",
+        "format": "CCYY",
+        "defaultValue": "9999"
+      },
+      "description": "Extract year from birth date"
+    },
+
+    "birth_month": {
+      "name": "Birth Date - Month",
+      "xml_path": "S2465.CLTDOBX.MM",
+      "function_type": "DATE",
+      "function_params": {
+        "jsonField": "eAPPDetails.0.Insured.0.Dob",
+        "format": "MM",
+        "defaultValue": "99"
+      },
+      "description": "Extract month from birth date"
+    },
+
+    "birth_day": {
+      "name": "Birth Date - Day",
+      "xml_path": "S2465.CLTDOBX.DD",
+      "function_type": "DATE",
+      "function_params": {
+        "jsonField": "eAPPDetails.0.Insured.0.Dob",
+        "format": "DD",
+        "defaultValue": "99"
+      },
+      "description": "Extract day from birth date"
+    },
+
+    "weight_decimal": {
+      "name": "Weight with 3 Decimals",
+      "xml_path": "PERSONINF.ZWGHT",
+      "function_type": "NUMBER",
+      "function_params": {
+        "jsonField": "eAPPDetails.0.Insured.0.Weight",
+        "decimals": 3,
+        "defaultValue": "0.000"
+      },
+      "description": "Format weight with 3 decimal places"
+    },
+
+    "rider_sa_padded": {
+      "name": "Rider Sum Assured (Zero-Padded)",
+      "xml_path": "RIDERPLAN.RDRANT1X",
+      "function_type": "NUMBER",
+      "function_params": {
+        "jsonField": "eAPPDetails.0.Riders.0.RiderSA",
+        "padLeft": 5,
+        "decimals": 0,
+        "defaultValue": "00000"
+      },
+      "description": "Pad rider SA to 5 digits (e.g., 01000)"
+    },
+
+    "discount_negative": {
+      "name": "Discount as Negative Premium",
+      "xml_path": "RSKDATA.ADDPREM01X",
+      "function_type": "NUMBER",
+      "function_params": {
+        "jsonField": "eAPPDetails.0.Product.DiscountAmount",
+        "multiply": -1,
+        "decimals": 2,
+        "defaultValue": "0.00"
+      },
+      "description": "Convert discount to negative value"
+    },
+
+    "salutation_config": {
+      "name": "Salutation Lookup",
+      "xml_path": "S2465.SALUTL",
+      "function_type": "CONFIG",
+      "function_params": {
+        "jsonField": "eAPPDetails.0.Insured.0.Salutation",
+        "configKey": "INSURED",
+        "fallbackToSource": true,
+        "defaultValue": "103"
+      },
+      "description": "Lookup salutation code from config (นาย→101, numeric passthrough)"
+    },
+
+    "marital_status": {
+      "name": "Marital Status Lookup",
+      "xml_path": "S2465.MARRYD",
+      "function_type": "CONFIG",
+      "function_params": {
+        "jsonField": "eAPPDetails.0.Insured.0.MariStatus",
+        "configKey": "MARISTATUS",
+        "fallbackToSource": false,
+        "defaultValue": ""
+      },
+      "description": "Lookup marital status (SINGLE→S, MARRIED→M)"
+    },
+
+    "campaign_code": {
+      "name": "Campaign Code Substring",
+      "xml_path": "S4014.CAMPAIGN",
+      "function_type": "JSCODE",
+      "function_params": {
+        "code": "const campaignCode = getNestedValue(data, 'eAPPDetails.0.CampaignCode');\nif (isEmpty(campaignCode)) return '';\n\n// Lookup from config\nconst code = await context.configLookup('CAMPCODE', campaignCode);\nif (!code) return '';\n\n// Return first 6 chars\nreturn code.substring(0, 6);",
+        "helpers": ["getNestedValue", "isEmpty"]
+      },
+      "description": "Lookup campaign code and take first 6 chars"
+    },
+
+    "citizen_or_passport": {
+      "name": "Citizen ID or Passport (Priority)",
+      "xml_path": "S2465.SECUITYNO",
+      "function_type": "PRIORITY",
+      "function_params": {
+        "fields": [
+          "eAPPDetails.0.Insured.0.CitizenID",
+          "eAPPDetails.0.Insured.0.PassportNo"
+        ],
+        "defaultValue": ""
+      },
+      "description": "Use CitizenID if available, otherwise Passport"
+    },
+
+    "riders_array": {
+      "name": "Riders Array Mapping",
+      "xml_path": "RIDERPLAN",
+      "function_type": "ARRAY",
+      "function_params": {
+        "jsonField": "eAPPDetails.0.Riders",
+        "filter": null,
+        "sort": { "field": "RiderCode", "order": "asc" },
+        "maxItems": 10,
+        "map": [
+          {
+            "targetField": "RIDER{index}X",
+            "sourceField": "RiderCode",
+            "transform": "trim"
+          },
+          {
+            "targetField": "RDRANT{index}X",
+            "sourceField": "RiderSA",
+            "format": { "padLeft": 5, "padChar": "0" }
+          }
+        ]
+      },
+      "description": "Map up to 10 riders with RiderCode and SA"
+    },
+
+    "beneficiary_filtered": {
+      "name": "Beneficiary (Filtered and Sorted)",
+      "xml_path": "POLDATA",
+      "function_type": "ARRAY",
+      "function_params": {
+        "jsonField": "eAPPDetails.0.Beneficiary",
+        "filter": null,
+        "sort": { "field": "CustomerID", "order": "asc" },
+        "maxItems": 3,
+        "map": [
+          {
+            "targetField": "ALINE0{index}X",
+            "sourceField": "FirstName"
+          }
+        ]
+      },
+      "description": "Map up to 3 beneficiaries sorted by CustomerID"
+    },
+
+    "full_name_expression": {
+      "name": "Full Name Expression",
+      "xml_path": "BENEFICIARY_NAME",
+      "function_type": "EXPRESSION",
+      "function_params": {
+        "expression": "firstName + ' ' + lastName",
+        "variables": {
+          "firstName": "eAPPDetails.0.Insured.0.FirstName",
+          "lastName": "eAPPDetails.0.Insured.0.LastName"
+        }
+      },
+      "description": "Concatenate first and last name"
+    },
+
+    "bmi_calculation": {
+      "name": "BMI Calculation",
+      "xml_path": "PERSONINF.ZBMIVAL",
+      "function_type": "EXPRESSION",
+      "function_params": {
+        "expression": "(weight / ((height / 100) * (height / 100))).toFixed(2)",
+        "variables": {
+          "weight": "eAPPDetails.0.Insured.0.Weight",
+          "height": "eAPPDetails.0.Insured.0.Height"
+        }
+      },
+      "description": "Calculate BMI from weight and height"
+    },
+
+    "payment_plan_jscode": {
+      "name": "Payment Plan (Full Logic)",
+      "xml_path": "S4014.PAYPLAN",
+      "function_type": "JSCODE",
+      "function_params": {
+        "code": "const payment = getNestedValue(data, 'eAPPDetails.0.Payment');\n\nif (!payment) return 'D000';\n\nif (payment.PayMethod === 'CREDITCARD') {\n  if (payment.PayMode === 'MONTHLY') {\n    return 'BI12';\n  }\n  \n  if ((payment.PayMode === 'ANNUAL' || payment.PayMode === 'YEARLY') &&\n      payment.EtrNumber === 'YES') {\n    return 'BI01';\n  }\n}\n\nreturn 'D000';",
+        "helpers": ["getNestedValue", "isEmpty"]
+      },
+      "description": "Complete payment plan logic with all conditions"
+    },
+
+    "occupation_class_sw": {
+      "name": "Occupation Class (SW Partner Logic)",
+      "xml_path": "RSKDATA.SCLASI1X",
+      "function_type": "JSCODE",
+      "function_params": {
+        "code": "const occClass = getNestedValue(data, 'eAPPDetails.0.Occupation.0.OccClass');\nconst partner = getNestedValue(data, 'eAPPDetails.0.Partner');\n\nif (isEmpty(occClass)) return '00';\n\n// Convert to string and pad left\nlet result = String(occClass).padStart(2, '0');\n\n// Special SW partner logic\nif (partner === 'SW') {\n  const validClasses = ['01', '02', '03', '04'];\n  if (!validClasses.includes(result)) {\n    return '04'; // Default to 04 for invalid\n  }\n}\n\nreturn result;",
+        "helpers": ["getNestedValue", "isEmpty"]
+      },
+      "description": "Format occupation class with SW partner validation"
+    },
+
+    "corporate_payer_action": {
+      "name": "Corporate Payer Action",
+      "xml_path": "S2480.ACTION",
+      "function_type": "JSCODE",
+      "function_params": {
+        "code": "const ownerType = getNestedValue(data, 'eAPPDetails.0.Payer.0.OwnerType');\n\nif (ownerType === 'C') {\n  // Corporate payer\n  return 'B';\n}\n\nreturn '';",
+        "helpers": ["getNestedValue"]
+      },
+      "description": "Set ACTION='B' if corporate payer, else empty"
+    },
+
+    "travel_effective_date": {
+      "name": "Travel Effective Date (Conditional)",
+      "xml_path": "S4014.CCDATE.CCYY",
+      "function_type": "JSCODE",
+      "function_params": {
+        "code": "const productType = getNestedValue(data, 'eAPPDetails.0.Product.ProductType');\nlet dateField;\n\nif (productType === 'TRAVEL') {\n  dateField = getNestedValue(data, 'eAPPDetails.0.DepartureDate');\n} else if (productType === 'TISCO') {\n  dateField = getNestedValue(data, 'eAPPDetails.0.EffectiveDate');\n} else {\n  dateField = getNestedValue(data, 'eAPPDetails.0.Payment.PayReceiveDate');\n}\n\nif (!dateField) return '9999';\n\nconst date = new Date(dateField);\nreturn date.getFullYear().toString();",
+        "helpers": ["getNestedValue"]
+      },
+      "description": "Select date source based on product type"
+    },
+
+    "beneficiary_tisco_percent": {
+      "name": "Beneficiary with TISCO Percentage",
+      "xml_path": "POLDATA.ALINE01X",
+      "function_type": "JSCODE",
+      "function_params": {
+        "code": "const benef = getNestedValue(data, 'eAPPDetails.0.Beneficiary.0');\nconst partner = getNestedValue(data, 'eAPPDetails.0.Partner');\n\nif (!benef) return '';\n\nlet name = '';\n\n// Add salutation (lookup from config would be better)\nif (benef.Salutation) {\n  const salutation = await context.configLookup('BENEF', benef.Salutation);\n  if (salutation) {\n    name += salutation + ' ';\n  }\n}\n\nname += (benef.FirstName || '') + ' ' + (benef.LastName || '');\n\n// Add percentage for TISCO only\nif (partner === 'TISCO' && benef.Percent) {\n  name += ' ' + benef.Percent + '%';\n}\n\nreturn name.trim();",
+        "helpers": ["getNestedValue"]
+      },
+      "description": "Format beneficiary name with optional percentage (TISCO)"
+    },
+
+    "bank_account_conditional": {
+      "name": "Bank Account (SST vs Other)",
+      "xml_path": "S8408.BANKACCKEY",
+      "function_type": "JSCODE",
+      "function_params": {
+        "code": "const bussSource = getNestedValue(data, 'eAPPDetails.0.BussSource');\n\nif (bussSource === 'SST') {\n  return getNestedValue(data, 'eAPPDetails.0.Payment.IssBankCode') || '';\n}\n\nreturn getNestedValue(data, 'eAPPDetails.0.Payment.ApprovalCode') || '';",
+        "helpers": ["getNestedValue"]
+      },
+      "description": "Use different bank field based on business source"
+    },
+
+    "exclusion_clauses": {
+      "name": "Exclusion Clauses (Filtered Array)",
+      "xml_path": "SR497.CLAUDESC01",
+      "function_type": "JSCODE",
+      "function_params": {
+        "code": "const uwValidation = getNestedValue(data, 'eAPPDetails.0.UwValidation');\n\nif (!Array.isArray(uwValidation)) return '';\n\n// Filter: result=ACCEPTEDEXCLUSION, sort by UwRuleNo\nconst exclusions = uwValidation\n  .filter(item => item.result === 'ACCEPTEDEXCLUSION')\n  .sort((a, b) => (a.UwRuleNo || 0) - (b.UwRuleNo || 0))\n  .slice(0, 3); // Max 3\n\n// Return first exclusion\nif (exclusions.length > 0) {\n  return exclusions[0].ShortExclusion || '';\n}\n\nreturn '';",
+        "helpers": ["getNestedValue"]
+      },
+      "description": "Get first UW exclusion clause"
+    },
+
+    "print_card_logic": {
+      "name": "Print Card (Product-Specific)",
+      "xml_path": "SZ013.PRINTCARD",
+      "function_type": "JSCODE",
+      "function_params": {
+        "code": "const contractType = getNestedValue(data, 'eAPPDetails.0.Product.ContractType');\n\n// AGI and ITS products: PrintCard = N\nif (contractType === 'AGI' || contractType === 'ITS') {\n  return 'N';\n}\n\n// Others: PrintCard = Y\nreturn 'Y';",
+        "helpers": ["getNestedValue"]
+      },
+      "description": "Set PrintCard based on contract type"
+    },
+
+    "staff_code_overflow": {
+      "name": "Staff Code with Overflow to Campaign",
+      "xml_path": "KKFEDATA.STAFFCDE",
+      "function_type": "JSCODE",
+      "function_params": {
+        "code": "const refferalCode = getNestedValue(data, 'eAPPDetails.0.RefferalCode');\n\nif (isEmpty(refferalCode)) return '';\n\nconst str = String(refferalCode);\n\n// Take first 10 chars for STAFFCDE\n// Remainder goes to ZCAMPGND (handled in separate mapping)\nreturn str.substring(0, 10);",
+        "helpers": ["getNestedValue", "isEmpty"]
+      },
+      "description": "Take first 10 chars of referral code"
+    },
+
+    "campaign_overflow": {
+      "name": "Campaign from Staff Code Overflow",
+      "xml_path": "PERSONINF.ZCAMPGND",
+      "function_type": "JSCODE",
+      "function_params": {
+        "code": "const refferalCode = getNestedValue(data, 'eAPPDetails.0.RefferalCode');\nconst campaignCode = getNestedValue(data, 'eAPPDetails.0.CampaignCode');\n\nif (!isEmpty(refferalCode)) {\n  const str = String(refferalCode);\n  \n  // If longer than 10, overflow goes here\n  if (str.length > 10) {\n    return str.substring(10);\n  }\n}\n\n// Otherwise use campaign code from config\nif (!isEmpty(campaignCode)) {\n  const code = await context.configLookup('CAMPCODE', campaignCode);\n  return code || '';\n}\n\nreturn '';",
+        "helpers": ["getNestedValue", "isEmpty"]
+      },
+      "description": "Use overflow from STAFFCDE or campaign code"
+    }
+  },
+
+  "templates": {
+    "health_product_s2465": [
+      "simple_direct_mapping",
+      "static_value",
+      "gender_mapping",
+      "nationality_mapping",
+      "address_line1",
+      "address_line2",
+      "district_with_prefix",
+      "birth_year",
+      "birth_month",
+      "birth_day",
+      "citizen_or_passport",
+      "salutation_config",
+      "marital_status"
+    ],
+
+    "payment_section_s4014": [
+      "payment_plan_jscode",
+      "campaign_code"
+    ],
+
+    "extended_info": [
+      "weight_decimal",
+      "bmi_calculation",
+      "staff_code_overflow",
+      "campaign_overflow"
+    ],
+
+    "riders_section": [
+      "riders_array"
+    ],
+
+    "beneficiary_section": [
+      "beneficiary_filtered",
+      "beneficiary_tisco_percent"
+    ]
+  }
+}
