@@ -3,113 +3,100 @@
 import { useState } from 'react'
 
 const getTypeBadgeClass = (type) => {
-  if (!type) return 'bg-gray-100 text-gray-800'
-
+  if (!type) return 'text-gray-400 border-gray-200'
   const lowerType = type.toLowerCase()
 
-  if (lowerType === 'complex') {
-    return 'bg-blue-100 text-blue-800'
-  }
+  // ใช้เป็น Text color และ Border แทน Background เข้มๆ เพื่อให้ดู "รางๆ" แต่สวยงาม
+  if (lowerType === 'complex') return 'text-blue-500 border-blue-100'
   if (['string', 'token', 'name', 'ncname', 'id', 'idref', 'language', 'normalizedstring'].some(t => lowerType.includes(t))) {
-    return 'bg-gray-200 text-gray-800'
+    return 'text-gray-500 border-gray-200'
   }
   if (['int', 'decimal', 'long', 'short', 'byte', 'float', 'double', 'number'].some(t => lowerType.includes(t))) {
-    return 'bg-green-100 text-green-800'
+    return 'text-emerald-500 border-emerald-100'
   }
-  if (lowerType.includes('boolean')) {
-    return 'bg-yellow-100 text-yellow-800'
-  }
-  if (lowerType.includes('date') || lowerType.includes('time')) {
-    return 'bg-purple-100 text-purple-800'
-  }
-  return 'bg-indigo-100 text-indigo-800'
+  if (lowerType.includes('boolean')) return 'text-amber-500 border-amber-100'
+  if (lowerType.includes('date') || lowerType.includes('time')) return 'text-purple-500 border-purple-100'
+  
+  return 'text-indigo-500 border-indigo-100'
 }
 
 export default function TreeNode({ node, level = 0, onSelect, selectedPath }) {
-  const [isExpanded, setIsExpanded] = useState(level < 2) // Auto-expand first 2 levels
+  const [isExpanded, setIsExpanded] = useState(level < 2)
   
   const hasChildren = node.children && node.children.length > 0
-  const indent = level * 24
+  const indent = level * 20 // ปรับระดับการเยื้องให้กระชับขึ้น
   const isSelected = selectedPath === node.path
-  const isLeaf = !hasChildren
 
   return (
-    <div className="select-none">
+    <div className="select-none text-sm">
       <div
-        className={`flex items-center py-2 px-3 cursor-pointer group transition-colors ${
-          isSelected ? 'bg-blue-100 border-l-4 border-blue-600' : 'hover:bg-gray-50'
-        } ${isLeaf ? 'cursor-pointer' : ''}`}
+        className={`flex items-center py-1.5 px-3 cursor-pointer group transition-all ${
+          isSelected ? 'bg-blue-50/50 border-l-2 border-blue-500' : 'hover:bg-gray-50'
+        }`}
         style={{ paddingLeft: `${indent + 12}px` }}
         onClick={() => {
-          if (hasChildren) {
-            setIsExpanded(!isExpanded)
-          }
-          if (onSelect) {
-            onSelect(node)
-          }
+          if (hasChildren) setIsExpanded(!isExpanded)
+          if (onSelect) onSelect(node)
         }}
       >
         {/* Expand/Collapse Icon */}
-        {hasChildren ? (
-          <span className="w-5 text-gray-600 font-bold">
-            {isExpanded ? '▼' : '▶'}
-          </span>
-        ) : (
-          <span className="w-5"></span>
-        )}
+        <span className="w-4 flex-shrink-0 text-[10px] text-gray-400">
+          {hasChildren ? (isExpanded ? '▼' : '▶') : ''}
+        </span>
 
         {/* Node Icon */}
-        <span className="w-6 text-center">
+        <span className="w-5 flex-shrink-0 text-center opacity-70">
           {hasChildren ? '📁' : '📄'}
         </span>
 
-        {/* Node Name */}
-        <span className="flex-1 font-medium ml-2">
-          {node.name}
-        </span>
-
-        {/* Type Badge */}
-        <span className={`px-2 py-1 text-xs rounded ${getTypeBadgeClass(node.type)}`}>
-          {node.type}
-        </span>
-
-        {/* Array Badge */}
-        {node.isArray && (
-          <span className="ml-2 px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded">
-            []
+        {/* Name and Metadata Row */}
+        <div className="flex items-baseline gap-2 overflow-hidden">
+          <span className={`font-medium whitespace-nowrap ${isSelected ? 'text-blue-700' : 'text-gray-700'}`}>
+            {node.name}
           </span>
-        )}
 
-        {/* Required Badge */}
-        {node.required && (
-          <span className="ml-2 px-2 py-1 text-xs bg-red-100 text-red-800 rounded">
-            *
-          </span>
-        )}
+          {/* Metadata Container (Type, Required, Array, Restrictions) */}
+          <div className="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+            
+            {/* Type Badge (Ghost Style) */}
+            <span className={`text-[10px] px-1.5 py-0 border rounded-md font-medium ${getTypeBadgeClass(node.type)}`}>
+              {node.type}
+            </span>
 
-        {/* Path (show on hover) */}
-        <span className="ml-3 text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity max-w-xs truncate">
+            {/* Array Badge */}
+            {node.isArray && (
+              <span className="text-[10px] text-purple-500 font-bold" title="Array">
+                []
+              </span>
+            )}
+
+            {/* Required Star */}
+            {node.required && (
+              <span className="text-red-400 text-xs" title="Required">*</span>
+            )}
+
+            {/* Restrictions Inline */}
+            {node.restrictions && Object.keys(node.restrictions).length > 0 && (
+              <div className="flex gap-1 items-center border-l border-gray-200 ml-1 pl-2">
+                {Object.entries(node.restrictions).map(([key, value]) => (
+                  <span key={key} className="text-[10px] text-gray-400 italic">
+                    {key}:<span className="text-gray-600 not-italic">{value}</span>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Full Path (Align to right) */}
+        <span className="ml-auto text-[10px] text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pl-4">
           {node.path}
         </span>
       </div>
 
-      {/* Restrictions */}
-      {node.restrictions && Object.keys(node.restrictions).length > 0 && (
-        <div 
-          className="flex items-center flex-wrap gap-2 pt-1 pb-2 px-3"
-          style={{ paddingLeft: `${indent + 12 + 20 + 24 + 8}px` }} // Align with node name
-        >
-          {Object.entries(node.restrictions).map(([key, value]) => (
-            <span key={key} className="px-1.5 py-0.5 text-xs bg-gray-200 text-gray-700 rounded-sm">
-              {key}: <strong>{value}</strong>
-            </span>
-          ))}
-        </div>
-      )}
-
       {/* Children */}
       {hasChildren && isExpanded && (
-        <div>
+        <div className="border-l border-gray-100 ml-[18px]">
           {node.children.map((child, index) => (
             <TreeNode
               key={`${child.path}-${index}`}
