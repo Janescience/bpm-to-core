@@ -1,58 +1,57 @@
-import Link from 'next/link'
-
 export default function Home() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="flex items-center justify-center bg-gray-50 min-h-screen">
       <div className="text-center space-y-8 max-w-4xl mx-auto px-4">
-        <h1 className="text-5xl font-bold mb-4">BPM to Core</h1>
-        <p className="text-gray-600 text-lg">SOAP XML Mapping System</p>
-
-        <div className="grid grid-cols-2 gap-6 mt-12">
-          {/* Templates */}
-          <Link
-            href="/templates"
-            className="p-8 bg-black text-white hover:bg-gray-800 rounded-lg shadow-lg transition-all hover:scale-105"
-          >
-            <div className="text-4xl mb-3">📋</div>
-            <div className="text-xl font-bold mb-2">Templates</div>
-            <div className="text-sm text-gray-300">จัดการ WSDL Templates และ Field Mappings</div>
-          </Link>
-
-          {/* Products */}
-          <Link
-            href="/products"
-            className="p-8 bg-white border-2 border-black hover:bg-gray-50 rounded-lg shadow-lg transition-all hover:scale-105"
-          >
-            <div className="text-4xl mb-3">📦</div>
-            <div className="text-xl font-bold mb-2">Products</div>
-            <div className="text-sm text-gray-600">จัดการ Products และ Mapping Overrides</div>
-          </Link>
-
-          {/* Custom Functions */}
-          <Link
-            href="/functions"
-            className="p-8 bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow-lg transition-all hover:scale-105"
-          >
-            <div className="text-4xl mb-3">⚡</div>
-            <div className="text-xl font-bold mb-2">Custom Functions</div>
-            <div className="text-sm text-blue-100">สร้าง/จัดการ User-Defined Functions</div>
-          </Link>
-
-          {/* Config Parameters */}
-          <Link
-            href="/config"
-            className="p-8 bg-green-600 text-white hover:bg-green-700 rounded-lg shadow-lg transition-all hover:scale-105"
-          >
-            <div className="text-4xl mb-3">⚙️</div>
-            <div className="text-xl font-bold mb-2">Config Parameters</div>
-            <div className="text-sm text-green-100">จัดการ Config Lookup Tables</div>
-          </Link>
+        <div className="space-y-4">
+          <h1 className="text-6xl font-bold text-gray-800">BPM to Core</h1>
+          <p className="text-gray-600 text-xl">SOAP XML Mapping System</p>
+          <div className="w-24 h-1 bg-black mx-auto rounded"></div>
         </div>
 
-        <div className="mt-12 text-sm text-gray-500">
-          Dynamic Mapping Engine v2.0 - ไม่ต้องแก้ Code อีกต่อไป! 🎉
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
+          <div className="bg-white p-8 rounded-xl shadow-lg border">
+            <div className="text-4xl mb-4">📋</div>
+            <h3 className="text-xl font-bold mb-2">Templates</h3>
+            <p className="text-gray-600 text-sm">จัดการ WSDL Templates และ Field Mappings สำหรับการแปลง XML</p>
+          </div>
+
+          <div className="bg-white p-8 rounded-xl shadow-lg border">
+            <div className="text-4xl mb-4">📦</div>
+            <h3 className="text-xl font-bold mb-2">Products</h3>
+            <p className="text-gray-600 text-sm">จัดการ Products และกำหนด Mapping Overrides ตามความต้องการ</p>
+          </div>
+
+          <div className="bg-white p-8 rounded-xl shadow-lg border">
+            <div className="text-4xl mb-4">🔄</div>
+            <h3 className="text-xl font-bold mb-2">Flow Charts</h3>
+            <p className="text-gray-600 text-sm">สร้างและจัดการ Business Process Flows แบบ Visual</p>
+          </div>
+
+          <div className="bg-white p-8 rounded-xl shadow-lg border">
+            <div className="text-4xl mb-4">⚡</div>
+            <h3 className="text-xl font-bold mb-2">Custom Functions</h3>
+            <p className="text-gray-600 text-sm">สร้างและจัดการ User-Defined Functions สำหรับการประมวลผลข้อมูล</p>
+          </div>
+
+          <div className="bg-white p-8 rounded-xl shadow-lg border">
+            <div className="text-4xl mb-4">⚙️</div>
+            <h3 className="text-xl font-bold mb-2">Config Parameters</h3>
+            <p className="text-gray-600 text-sm">จัดการ Config Lookup Tables และพารามิเตอร์ระบบ</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-8 rounded-xl shadow-lg border border-blue-200">
+            <div className="text-4xl mb-4">🚀</div>
+            <h3 className="text-xl font-bold mb-2 text-blue-800">Dynamic Engine</h3>
+            <p className="text-blue-600 text-sm">ระบบที่ไม่ต้องแก้ Code อีกต่อไป! จัดการทุกอย่างผ่าน UI</p>
+          </div>
+        </div>
+
+        <div className="mt-16">
+          <div className="text-sm text-gray-500 bg-white px-6 py-3 rounded-full inline-block shadow-sm border">
+            Dynamic Mapping Engine v2.0 - ไม่ต้องแก้ Code อีกต่อไป! 🎉
+          </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 }
